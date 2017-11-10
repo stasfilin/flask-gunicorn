@@ -1,8 +1,9 @@
 import multiprocessing
-import gunicorn.app.base
-import flask.cli
-import click
 import os
+
+import click
+import flask.cli
+import gunicorn.app.base
 from gunicorn.six import iteritems
 from werkzeug.debug import DebuggedApplication
 
@@ -22,7 +23,7 @@ def server_bind_address():
 
 
 def number_of_workers():
-    if not 'WEB_CONCURRENCY' in os.environ:
+    if 'WEB_CONCURRENCY' not in os.environ:
         return (multiprocessing.cpu_count() * 2) + 1
     else:
         return os.environ['WEB_CONCURRENCY']
@@ -30,7 +31,9 @@ def number_of_workers():
 
 class GunicornStandalone(gunicorn.app.base.BaseApplication):
     def __init__(self, application, options=None):
-        """ Construct the Application. Default gUnicorn configuration is loaded """
+        """
+            Construct the Application. Default gUnicorn configuration is loaded
+        """
 
         self.application = application
         self.options = options or {}
@@ -66,19 +69,22 @@ class GunicornStandalone(gunicorn.app.base.BaseApplication):
                    'ignore_unknown_options': True,
                    'allow_interspersed_args': False,
                })
-@click.option('--host', '-h', default=None, help='The interface to bind to.')
-@click.option('--port', '-p', default=None, help='The port to bind to.')
+@click.option('--host', '-h', default=None,
+              help='The interface to bind to.')
+@click.option('--port', '-p', default=None,
+              help='The port to bind to.')
 @click.option('--reload/--no-reload', default=None,
               help='Enable or disable the reloader.  By default the reloader '
                    'is active if debug is enabled.')
 @click.option('--debugger/--no-debugger', default=None,
               help='Enable or disable the debugger.  By default the debugger '
                    'is active if debug is enabled.')
-@click.option('--workers', '-w', default=number_of_workers(), help='Number of Gunicorn workers')
-@click.option('--worker_class', '-wc', default=None, help="Specify a custom class of worker to use")
+@click.option('--workers', '-w', default=number_of_workers(),
+              help='Number of Gunicorn workers')
+@click.option('--worker_class', '-wc', default=None,
+              help="Specify a custom class of worker to use")
 @flask.cli.pass_script_info
 def cli(info, host, port, reload, debugger, workers, worker_class):
-
     os.environ['FLASK_RUN_FROM_CLI_SERVER'] = '1'
     debug = flask.cli.get_debug_flag()
 
@@ -100,7 +106,8 @@ def cli(info, host, port, reload, debugger, workers, worker_class):
         app.wsgi_app = DebuggedApplication(app.wsgi_app, True)
 
         print(' * Launching in DEBUG mode')
-        print(' * Serving Flask using a single worker "{}"'.format(info.app_import_path))
+        print(' * Serving Flask using a single worker "{}"'.format(
+            info.app_import_path))
 
         if reload is None:
             options["reload"] = bool(debug)
