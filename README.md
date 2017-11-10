@@ -32,6 +32,14 @@ Then run the server:
 flask run
 ```
 
+Run tests
+```sh
+pip install -e .
+pip install -r dev-requirements.txt
+flake8 . --exclude=tests --show-source --statistics 
+py.test --cov=coverage tests 
+```
+
 By default Flask-Gunicorn will make a sensible guess at how many 
 workers to allocate to the application server based the number of
 CPU cores on your machine, but this can be specified using the 
